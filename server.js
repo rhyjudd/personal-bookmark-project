@@ -69,6 +69,12 @@ app.post("/api/newbookmark",(req,res)=>{
   res.redirect("/");
 })
 
+//API endpoint to retrieve everything from the database collection
+app.get("/bookmarksCollection",(req,res)=>{
+  Bookmark.find({}).then( (bookmarks)=>{ res.send(bookmarks) });
+});
+
+
 // listen for requests :)
 const listener = app.listen(process.env.PORT, function() {
   console.log("Your app is listening on port " + listener.address().port);
