@@ -7,6 +7,7 @@ const app          = express();
 const bodyParser   = require("body-parser");
 const mongoose     = require("mongoose");
 const dns          = require("dns");
+const ejs          = require("ejs");
 
 //Load model
 require('./bookmarks.js');
