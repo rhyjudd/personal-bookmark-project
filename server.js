@@ -9,6 +9,11 @@ const mongoose     = require("mongoose");
 const dns          = require("dns");
 const ejs          = require("ejs");
 
+//set view engine
+app.set('view engine', 'ejs');
+
+
+
 //Load model
 require('./bookmarks.js');
 const Bookmark = mongoose.model('bookmarks');
@@ -40,12 +45,12 @@ app.use(express.static("public"));
 // http://expressjs.com/en/starter/basic-routing.html
 //Default route
 app.get("/", (req, res)=>{
-  res.sendFile(__dirname + "/views/index.html");
+  res.render('pages/index');
 });
 
 //Add route page
 app.get("/newbookmark",(req,res)=>{
-  res.sendFile(__dirname + "/views/newbookmark.html");
+  res.render("pages/newbookmark");
 })
 
 
