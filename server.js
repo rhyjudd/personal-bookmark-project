@@ -7,6 +7,12 @@ const app          = express();
 const bodyParser   = require("body-parser");
 const mongoose     = require("mongoose");
 const dns          = require("dns");
+const ejs          = require("ejs");
+
+//set view engine
+app.set('view engine', 'ejs');
+
+
 
 //Load model
 require('./bookmarks.js');
@@ -39,12 +45,12 @@ app.use(express.static("public"));
 // http://expressjs.com/en/starter/basic-routing.html
 //Default route
 app.get("/", (req, res)=>{
-  res.sendFile(__dirname + "/views/index.html");
+  res.render('pages/index');
 });
 
 //Add route page
 app.get("/newbookmark",(req,res)=>{
-  res.sendFile(__dirname + "/views/newbookmark.html");
+  res.render("pages/newbookmark");
 })
 
 
@@ -68,6 +74,12 @@ app.post("/api/newbookmark",(req,res)=>{
   
   res.redirect("/");
 })
+
+//API endpoint to retrieve everything from the database collection
+app.get("/bookmarksCollection",(req,res)=>{
+  Bookmark.find({}).then( (bookmarks)=>{ res.send(bookmarks) });
+});
+
 
 // listen for requests :)
 const listener = app.listen(process.env.PORT, function() {

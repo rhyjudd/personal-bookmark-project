@@ -32,7 +32,7 @@ h1 {
 }
 
 .box{
-  background-color: #3366ff; 
+  background-color: #0040ff; 
   width: 85px;
   height: 85px;  
   border-radius: 50%;
@@ -47,7 +47,7 @@ h1 {
 }
 
 .box:hover{
-  background-color: #668cff; 
+  background-color: #3366ff; 
   border: 1px solid #fff;
   
 }
