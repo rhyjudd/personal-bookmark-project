@@ -45,7 +45,7 @@ app.use(express.static("public"));
 // http://expressjs.com/en/starter/basic-routing.html
 //Default route
 app.get("/", (req, res)=>{
-  res.render('pages/index');
+  res.render('./pages/index');
 });
 
 //Add route page
