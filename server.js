@@ -22,11 +22,11 @@ const Bookmark = mongoose.model('bookmarks');
 // but feel free to use whatever libs or frameworks you'd like through `package.json`.
 
 //Connecting to the database
+//mongoose.set('useUnifiedTopology', true);
 let mongoDB = process.env.MONGODB_URI;
 mongoose.connect(mongoDB, { useNewUrlParser: true });
 
 var db = mongoose.connection;
-
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function() {
   // we're connected!
@@ -45,40 +45,93 @@ app.use(express.static("public"));
 // http://expressjs.com/en/starter/basic-routing.html
 //Default route
 app.get("/", (req, res)=>{
-  res.render('./pages/index');
+  Bookmark.find({}).then( (bookmarks)=>{ 
+    let jsonObj = bookmarks; 
+    console.log(`first breakpoint: user has loaded or re-loaded the main page`)
+    res.render('./pages/index', {bookmarks: jsonObj});
+  });
+  
 });
 
-//Add route page
+//New Bookmark route
 app.get("/newbookmark",(req,res)=>{
   res.render("pages/newbookmark");
 })
 
 
-//Add bookmark to database route
+//Submit Bookmark to Database
 app.post("/api/newbookmark",(req,res)=>{
   console.log(req.body);
-  let today = new Date();
-  
-  
-  
+  let today = new Date();  
   const newBookmark = {
-    bookmark  : req.body.description,
+    url  : req.body.url,
+    description: req.body.description,
     date      : today,
     
-  };
-  
+  };  
   new Bookmark(newBookmark).save().then(()=>{
-        console.log(newBookmark);
-        
-      }); 
-  
+        console.log(newBookmark);        
+      });  
   res.redirect("/");
 })
+
 
 //API endpoint to retrieve everything from the database collection
 app.get("/bookmarksCollection",(req,res)=>{
   Bookmark.find({}).then( (bookmarks)=>{ res.send(bookmarks) });
 });
+
+
+//Edit Bookmark
+app.get('/bookmarkEdit/:bookmarkId',(req, res)=>{
+  console.log(req.params);
+  let id = req.params.bookmarkId;
+  console.log(`Edit bookmark breakpoint, req.params.id ${id}`);
+  Bookmark.findById(id).then( (bookmark)=>{
+    let jsonObj = bookmark;
+    console.log(jsonObj);
+    //res.send("ok");
+    res.render('./pages/editBookmark', {bookmark: jsonObj});    
+  })
+  //res.send("ok");
+  
+});
+
+
+//Specific Bookmark
+app.get('/:id', (req,res)=>{  
+  let id = req.params.id;
+  console.log(`Bookmark page breakpoint, req.params: ${id}`);
+  Bookmark.findById(id).then( (bookmark)=>{
+    let jsonObj = bookmark;
+    console.log(`Bookmark page breakpoint, bookmark object: ${jsonObj}`);
+    //res.send("ok");
+    res.render('./pages/bookmark', {bookmark: jsonObj});    
+  })
+});
+
+
+//Delete Bookmark
+app.post('/bookmarkDelete/:id',(req, res)=>{
+  console.log(req.params);
+  let id = req.params.id;
+  console.log(id);
+  Bookmark.findByIdAndDelete(id, (err)=>{
+      if(err) console.log(err);
+      console.log("successul delete");
+    });
+  res.redirect("/");
+})
+
+
+//Update Bookmark Route
+app.post("/bookmarkUpdate/:id", (req, res)=>{
+  let updateId = req.params.id;
+  console.log(`Update route breakpoint: ${updateId}`);
+  
+});
+
+
 
 
 // listen for requests :)

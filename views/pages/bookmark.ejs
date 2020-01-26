@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <%- include("../partials/head.ejs") %>
+  </head>
+  <body>
+    <header class="sticky-top">
+    <%- include("../partials/header.ejs") %>
+    </header>
+    
+    <main class="container">
+      <div class="box text-light "">
+        <p>
+          <%- bookmark.url %>
+        </p>
+        <p>
+          <%- bookmark.description %>
+        </p>                                   
+        <div class="buttonBox">          
+          <form method='get' action='/bookmarkEdit/<%= bookmark.id %>'>
+          <input type="submit" class='btn bg-secondary text-light button' value='Edit'>
+          </form> 
+                              
+          <form method='post' action='/bookmarkDelete/<%= bookmark.id %>'>
+          <input type="submit" class='btn btn-danger button' value='Delete'>
+          </form>
+        </div>       
+                                                                           
+                                                                       
+      </div>
+    </main>
+    <footer>
+      <%- include("../partials/footer.ejs") %>
+    </footer>  
+  </body>
+</html>
