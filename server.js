@@ -53,6 +53,12 @@ app.get("/", (req, res)=>{
   
 });
 
+
+//login route
+app.get("/login", (req,res)=>{
+  res.render("./pages/login");
+});
+
 //New Bookmark route
 app.get("/newbookmark",(req,res)=>{
   res.render("pages/newbookmark");
@@ -129,6 +135,12 @@ app.post("/bookmarkUpdate/:id", (req, res)=>{
   let updateId = req.params.id;
   console.log(`Update route breakpoint: ${updateId}`);
   
+});
+
+
+//login route
+app.get("/login", (req,res)=>{
+  res.send("ok");
 });
 
 
