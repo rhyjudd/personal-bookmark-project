@@ -31,7 +31,7 @@ app.use(session({
     store: sessionStore,
     saveUninitialized: true,
     resave: 'true',
-    secret: 'secret'
+    secret: process.env.SECRET
 }));
 app.use(flash());
 
