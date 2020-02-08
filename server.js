@@ -25,7 +25,7 @@ app.set('view engine', 'ejs');
 
 
 //set cookie parser settings
-app.use(cookieParser('secret'));
+app.use(cookieParser(process.env.SECRET));
 app.use(session({
     cookie: { maxAge: 60000 },
     store: sessionStore,
