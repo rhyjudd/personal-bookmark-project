@@ -11,17 +11,17 @@
     <main class="container">
       <div class="box text-light "">
         <p>
-          <%- bookmark.url %>
+          <a href="<%- bookmark.url %>" class="text-light"><%- bookmark.url %></a>
         </p>
         <p>
           <%- bookmark.description %>
         </p>                                   
         <div class="buttonBox">          
-          <form method='get' action='/bookmarkEdit/<%= bookmark.id %>'>
+          <form method='get' action='/editBookmark<%= bookmark.id %>'>
           <input type="submit" class='btn bg-secondary text-light button' value='Edit'>
           </form> 
                               
-          <form method='post' action='/bookmarkDelete/<%= bookmark.id %>'>
+          <form method='post' action='/deleteBookmark/<%= bookmark.id %>'>
           <input type="submit" class='btn btn-danger button' value='Delete'>
           </form>
         </div>       

@@ -8,10 +8,32 @@
     <%- include("../partials/header.ejs") %>
     </header>
     <main class="container" >
+      <%- console.log(expressFlash)-%>
+      
+      <% if ( expressFlash.length > 0 ) { %>
+        <div class="alert alert-success" role="alert">
+          <p>
+            <%= expressFlash %>
+          </p>
+        </div>
+
+      <% } %>
+      
+      <% if ( flashFailure.length > 0 ) { %>
+        <div class="alert alert-danger" role="alert">
+          <p>
+            <%= flashFailure %>
+          </p>
+        </div>
+
+      <% } %>
+      
+      
+      
     <div>
        <% bookmarks.forEach((bookmarks) => {
       %> 
-      <a href="<%= bookmarks._id %>" class="bg-secondary text-light">  
+      <a href="Bookmark/<%= bookmarks._id %>" class="bg-secondary text-light">  
         <div class="text-light bookmarkbox ">
           <%= bookmarks.url %>    
         </div> 

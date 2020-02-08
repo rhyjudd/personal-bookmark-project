@@ -6,8 +6,8 @@ const Schema = mongoose.Schema;
 
 
 const BookmarkSchema = new Schema({
-  url:{ type: String},
-  description: {type: String},
+  url:{ type: String, required: true},
+  description: {type: String, required: true},
   date: {type: Date},
   
   
