@@ -13,10 +13,42 @@ const passport     = require("passport");
 const session      = require("express-session");
 const flash        = require("express-flash");
 const sessionStore = new session.MemoryStore;
+const Strategy     = require("passport-local").Strategy;
+
+
+//Load mongoose models
+require('./bookmarks.js');
+require('./user.js');
+const Bookmark   = mongoose.model('bookmarks');
+const User       = mongoose.model('users');
 
 
 
 
+//configure passport.js local strategy
+passport.use(new Strategy(
+  function(username, password, done) {
+    User.findOne({ userName: username }, function (err, user) {
+      if (err) { return done(err); }
+      if (!user) { return done(null, false); }
+      if (!user.verifyPassword(password)) { return done(null, false); }
+      return done(null, user);
+    });
+  }
+));
+
+
+//Setup deserialize and serialize of users
+passport.serializeUser(function(user, cb) {
+  cb(null, user.id);
+});
+
+passport.deserializeUser(function(id, cb) {
+  db.users.findById(id, function (err, user) {
+    if (err) { return cb(err); }
+    cb(null, user);
+  });
+});
 
 
 
@@ -45,11 +77,7 @@ app.use(function(req, res, next){
 });
 
 
-//Load mongoose models
-require('./bookmarks.js');
-require('./user.js');
-const Bookmark   = mongoose.model('bookmarks');
-const User       = mongoose.model('users');
+
 
 
 // we've started you off with Express,
@@ -76,7 +104,10 @@ app.use(require('morgan')('combined'));
 app.use(require('body-parser').urlencoded({ extended: true }));
 app.use(require('express-session')({ secret: 'keyboard cat', resave: false, saveUninitialized: false }));
 
-
+// Initialize Passport and restore authentication state, if any, from the
+// session.
+app.use(passport.initialize());
+app.use(passport.session());
 
 //Body parser
 app.use(bodyParser.json());
@@ -178,12 +209,7 @@ app.post("/addBookmark",(req,res)=>{
         res.redirect('/'); 
       }
     
-    });
-       
-    
-    
-  
-  
+    });     
 })
 
 
@@ -220,8 +246,9 @@ app.post("/updateBookmark/:id", (req, res)=>{
 });
 
 
+
 //login
-app.post('/login', (req,res)=> {
+app.post('/login',  passport.authenticate('local', { failureRedirect: '/login' }), (req,res)=> {
   console.log("login successful")
     res.redirect('/');
   });
