@@ -8,6 +8,18 @@
     <%- include("../partials/header.ejs") %>
     </header>
     <main class="container" >
+      
+      <%- console.log(failure)-%>
+            
+      <% if ( failure.length > 0 ) { %>
+        <div class="alert alert-danger" role="alert">
+          <p>
+            <%= failure %>
+          </p>
+        </div>
+
+      <% } %>
+      
       <div class="d-flex justify-content-center button text-light "> 
         <form action="/login" method="post">
           <div class="form-group">

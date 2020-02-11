@@ -11,9 +11,9 @@ const dns          = require("dns");
 const ejs          = require("ejs");
 const passport     = require("passport");
 const session      = require("express-session");
-const flash        = require("express-flash");
+const flash        = require("connect-flash");
 const sessionStore = new session.MemoryStore;
-const Strategy     = require("passport-local").Strategy;
+const LocalStrategy= require("passport-local").Strategy;
 
 
 //Load mongoose models
@@ -26,16 +26,18 @@ const User       = mongoose.model('users');
 
 
 //configure passport.js local strategy
-passport.use(new Strategy(
-  function(username, password, done) {
-    User.findOne({ userName: username }, function (err, user) {
-      if (err) { return done(err); }
-      if (!user) { return done(null, false); }
-      if (!user.verifyPassword(password)) { return done(null, false); }
-      return done(null, user);
-    });
-  }
-));
+passport.use(new LocalStrategy((username, password, done)=>{
+  User.findOne({userName: username}).then(user => {
+        if (!user) {
+          console.log('No user found');
+          return done(null, false, {failure:'Incorrect username'});
+        }     
+        if(user.password != password){
+          return done(null, false);
+        }
+        return done(null,user);
+  })
+}));
 
 
 //Setup deserialize and serialize of users
@@ -44,7 +46,7 @@ passport.serializeUser(function(user, cb) {
 });
 
 passport.deserializeUser(function(id, cb) {
-  db.users.findById(id, function (err, user) {
+  User.findById(id, function (err, user) {
     if (err) { return cb(err); }
     cb(null, user);
   });
@@ -67,17 +69,12 @@ app.use(session({
 }));
 app.use(flash());
 
-
-// Custom flash middleware -- from Ethan Brown's book, 'Web Development with Node & Express'
-app.use(function(req, res, next){
-    // if there's a flash message in the session request, make it available in the response, then delete it
-    res.locals.sessionFlash = req.session.sessionFlash;
-    delete req.session.sessionFlash;
-    next();
+app.get('/flash', function(req, res){
+  // Set a flash message by passing the key, followed by the value, to req.flash().
+  req.flash('info', 'Flash is back!');
+  req.flash('failure', 'Please try again');
+  res.redirect('/');
 });
-
-
-
 
 
 // we've started you off with Express,
@@ -102,7 +99,7 @@ db.once('open', function() {
 // logging, parsing, and session handling.
 app.use(require('morgan')('combined'));
 app.use(require('body-parser').urlencoded({ extended: true }));
-app.use(require('express-session')({ secret: 'keyboard cat', resave: false, saveUninitialized: false }));
+//app.use(require('express-session')({ secret: 'keyboard cat', resave: false, saveUninitialized: false }));
 
 // Initialize Passport and restore authentication state, if any, from the
 // session.
@@ -118,12 +115,7 @@ app.use(express.static("public"));
 
 
 
-// Route that creates a flash message using the express-flash module
-app.all('/express-flash', function( req, res ) {
-    req.flash('success', 'This is a flash message using the express-flash module.');
-    req.flash('failure', 'This is a failure message');
-    res.redirect('/');
-});
+
 
 
 
@@ -141,7 +133,8 @@ app.get("/", (req, res)=>{
 
 //login route
 app.get("/login", (req,res)=>{
-  res.render("./pages/login");
+  console.log(req.flash('failure'));
+  res.render("./pages/login", {failure : req.flash('failure')});
 });
 
 //New Bookmark route
@@ -248,8 +241,9 @@ app.post("/updateBookmark/:id", (req, res)=>{
 
 
 //login
-app.post('/login',  passport.authenticate('local', { failureRedirect: '/login' }), (req,res)=> {
-  console.log("login successful")
+app.post('/login',  passport.authenticate('local', { failureRedirect: '/login', flashFailure: true}), (req,res)=> {
+    console.log("login successful")
+    req.flash('success', 'You have successfully logged in');
     res.redirect('/');
   });
 
