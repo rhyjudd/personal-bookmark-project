@@ -27,16 +27,21 @@ const User       = mongoose.model('users');
 
 //configure passport.js local strategy
 passport.use(new LocalStrategy((username, password, done)=>{
-  User.findOne({userName: username}).then(user => {
+  User.findOne({userName: username}, (err,user)=>{
+        if(err){ 
+          console.log(`login error: ${err.message}`);
+          return done(err);
+        }
         if (!user) {
           console.log('No user found');
-          return done(null, false, {failure:'Incorrect username'});
-        }     
+          return done(null, false, {msg:'Incorrect username'});
+        } 
         if(user.password != password){
-          return done(null, false);
+          return done(null, false, {message:'Incorrect password'});
         }
+    
         return done(null,user);
-  })
+  });
 }));
 
 
@@ -52,6 +57,14 @@ passport.deserializeUser(function(id, cb) {
   });
 });
 
+
+
+function requireLogin(req,res,next) {
+	if(!req.user) {
+    return res.render('./pages/login',{message: 'login to view content', loggedIn:false})
+  };
+	next();
+}
 
 
 //set view engine
@@ -72,7 +85,6 @@ app.use(flash());
 app.get('/flash', function(req, res){
   // Set a flash message by passing the key, followed by the value, to req.flash().
   req.flash('info', 'Flash is back!');
-  req.flash('failure', 'Please try again');
   res.redirect('/');
 });
 
@@ -121,11 +133,11 @@ app.use(express.static("public"));
 
 // http://expressjs.com/en/starter/basic-routing.html
 //Default route
-app.get("/", (req, res)=>{
-  Bookmark.find({}).then( (bookmarks)=>{ 
+app.get("/", requireLogin,(req, res)=>{
+  Bookmark.find({createdBy:req.user.userName}).then( (bookmarks)=>{ 
     let jsonObj = bookmarks; 
     console.log(`first breakpoint: user has loaded or re-loaded the main page`)
-    res.render('./pages/index', {bookmarks: jsonObj, expressFlash: req.flash('success'), flashFailure: req.flash('failure')});
+    res.render('./pages/index', {bookmarks: jsonObj, expressFlash: req.flash('success'), message:req.flash('error'),loggedIn:true});
   });
   
 });
@@ -133,13 +145,20 @@ app.get("/", (req, res)=>{
 
 //login route
 app.get("/login", (req,res)=>{
-  console.log(req.flash('failure'));
-  res.render("./pages/login", {failure : req.flash('failure')});
+  res.render("./pages/login", {message:req.flash('error'), loggedIn: false});
+});
+
+
+//logout route
+app.get('/logout', (req,res)=>{
+  req.logout();
+  res.redirect('/login');
 });
 
 //New Bookmark route
-app.get("/newbookmark",(req,res)=>{
-  res.render("pages/newbookmark");
+app.get("/newbookmark",requireLogin,(req,res)=>{
+  console.log(req.user.userName);
+  res.render("pages/newbookmark",{loggedIn:true});
 })
 
 //New User rouote
@@ -148,7 +167,7 @@ app.get("/adduser", (req, res)=>{
 })
 
 //Add user 
-app.post("/adduser",(req,res)=>{
+app.post("/adduser",requireLogin,(req,res)=>{
   console.log(req.body);
   let today = new Date(); 
   const newUser = {
@@ -164,31 +183,32 @@ app.post("/adduser",(req,res)=>{
   new User(newUser).save().then(()=>{
     console.log(newUser)
   })
-  res.redirect("/");
+  res.redirect("/",{loggedIn:true});
 });
 
 
 //Bookmark page
-app.get('/Bookmark/:id', (req,res)=>{  
+app.get('/Bookmark/:id', requireLogin,(req,res)=>{  
   let id = req.params.id;
   console.log(`Bookmark page breakpoint, req.params: ${id}`);
   Bookmark.findById(id).then( (bookmark)=>{
     let jsonObj = bookmark;
     console.log(`Bookmark page breakpoint, bookmark object: ${jsonObj}`);
     //res.send("ok");
-    res.render('./pages/bookmark', {bookmark: jsonObj});    
+    res.render('./pages/bookmark', {bookmark: jsonObj,loggedIn:true});    
   })
 });
 
 
 //Add bookmark
-app.post("/addBookmark",(req,res)=>{
+app.post("/addBookmark",requireLogin, (req,res)=>{
     console.log(req.body);
-  
+    
     let today = new Date();  
     const newBookmark = {
       url        : req.body.url,
       description: req.body.description,
+      createdBy  : req.user.userName,
       date       : today,    
     };  
   
@@ -207,20 +227,20 @@ app.post("/addBookmark",(req,res)=>{
 
 
 //Edit bookmark
-app.get('/editBookmark/:bookmarkId',(req, res)=>{
+app.get('/editBookmark/:bookmarkId',requireLogin,(req, res)=>{
   console.log(req.params);
   let id = req.params.bookmarkId;
   console.log(`Edit bookmark breakpoint, req.params.id ${id}`);
   Bookmark.findById(id).then( (bookmark)=>{
     let jsonObj = bookmark;
     console.log(jsonObj);
-    res.render('./pages/editBookmark', {bookmark: jsonObj});    
+    res.render('./pages/editBookmark', {bookmark: jsonObj,loggedIn:true});    
   })  
 });
 
 
 //Delete bookmark
-app.post('/deleteBookmark/:id',(req, res)=>{
+app.post('/deleteBookmark/:id',requireLogin,(req, res)=>{
   console.log(req.params);
   let id = req.params.id;
   console.log(id);
@@ -233,7 +253,7 @@ app.post('/deleteBookmark/:id',(req, res)=>{
 
 
 //Update bookmark
-app.post("/updateBookmark/:id", (req, res)=>{
+app.post("/updateBookmark/:id", requireLogin,(req, res)=>{
   let updateId = req.params.id;
   console.log(`Update route breakpoint: ${updateId}`);  
 });
@@ -241,7 +261,7 @@ app.post("/updateBookmark/:id", (req, res)=>{
 
 
 //login
-app.post('/login',  passport.authenticate('local', { failureRedirect: '/login', flashFailure: true}), (req,res)=> {
+app.post('/login',  passport.authenticate('local', { failureRedirect: '/login', failureFlash:'Login failed'}), (req,res)=> {
     console.log("login successful")
     req.flash('success', 'You have successfully logged in');
     res.redirect('/');

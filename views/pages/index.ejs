@@ -9,22 +9,26 @@
     </header>
     <main class="container" >
       <%- console.log(expressFlash)-%>
-      <%- console.log(flashFailure)-%>
+      <%- console.log(message) -%>
       
       <% if ( expressFlash.length > 0 ) { %>
-        <div class="alert alert-success" role="alert">
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
           <p>
             <%= expressFlash %>
           </p>
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
         </div>
 
       <% } %>
       
-      <% if ( flashFailure.length > 0 ) { %>
-        <div class="alert alert-danger" role="alert">
+       <% if ( message.length > 0 ) { %>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
           <p>
-            <%= flashFailure %>
+            <%= message %>
           </p>
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
         </div>
 
       <% } %>
