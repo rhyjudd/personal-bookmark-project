@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <%- include("../partials/head.ejs") %>
+  </head>
+  <body>
+    <header class="sticky-top">
+    <%- include("../partials/header.ejs") %>
+    </header>
+    <main class="container" >
+      <div class="d-flex justify-content-center button text-light ">
+       <form action="/adduser" method="post">
+            <div class="form-group">
+              <label for="exampleInputFirstName">First name: </label>
+              <input type="text" class="form-control" id="firstName" name="firstName" placeholder="Enter first name">
+            </div>
+         
+           <div class="form-group">
+              <label for="exampleInputlastname">Last name: </label>
+              <input type="text" class="form-control" id="lastName"  name="lastName" placeholder="Enter last name">
+            </div>
+         
+           <div class="form-group">
+              <label for="exampleInputlastname">Phone Number: </label>
+              <input type="text" class="form-control" id="phoneNumber"  name="phoneNumber" placeholder="Enter phone number">
+            </div>
+         
+            <div class="form-group">
+              <label for="exampleInputUsername">Username: </label>
+              <input type="text" class="form-control" id="userName"  name="userName" placeholder="Enter username">
+            </div>
+         
+            <div class="form-group">
+              <label for="exampleInputEmail">Email Address: </label>
+              <input type="text" class="form-control" id="emailAddress"  name="emailAddress" placeholder="Enter email address">
+            </div>
+         
+            <div class="form-group">
+              <label for="exampleInputPassword1">Password</label>
+              <input type="password" class="form-control" id="password" name="password" placeholder="Password">
+            </div>
+
+            <button type="submit" class="btn bg-secondary text-light">Submit</button>
+        </form>
+      </div>
+    </main>
+    <footer>
+      <%- include("../partials/footer.ejs") %>
+    </footer>  
+  </body>
+</html>

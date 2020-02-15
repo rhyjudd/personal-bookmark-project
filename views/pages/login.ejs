@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <%- include("../partials/head.ejs") %>
+  </head>
+  <body>
+    <header class="sticky-top">
+    <%- include("../partials/header.ejs") %>
+    </header>
+    <main class="container" >
+      
+      <% if ( message.length > 0 ) { %>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+          <p>
+            <%= message %>
+          </p>
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </div>
+
+      <% } %>
+      
+      <div class="d-flex justify-content-center button text-light "> 
+        <form action="/login" method="post">
+          <div class="form-group">
+            <label for="exampleInputEmail1">Username: </label>
+            <input type="text" class="form-control" id="username"  name="username" placeholder="Enter username">
+            
+          </div>
+          <div class="form-group">
+            <label for="exampleInputPassword1">Password</label>
+            <input type="password" class="form-control" id="password" name="password" placeholder="Password">
+          </div>
+          
+          <button type="submit" class="btn bg-secondary text-light">Login</button>
+          <p class="button">
+            or
+          </p>
+          <div>
+            <a href="adduser" class="btn bg-secondary text-light">Sign-up</a>
+          </div>
+        </form>        
+      </div>
+           
+        
+      
+    </main>
+    <footer>
+      <%- include("../partials/footer.ejs") %>
+    </footer>  
+  </body>
+</html>

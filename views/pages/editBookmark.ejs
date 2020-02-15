@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  
+  <head>
+    <%- include("../partials/head.ejs") %>
+  </head>
+  
+  <body>
+    <header class="sticky-top">
+      <%- include("../partials/header.ejs") %>
+    </header>
+    <main>
+      <div class="d-flex justify-content-center button">       
+          <form action="#" method="post">
+            <div class="form-group text-light ">
+              <h3>Edit Bookmark</h3>              
+              <div class="button form-group">
+                <p>
+                  Bookmark URL
+                </p>
+                <input id="url" type="text" name="url" value="<%= bookmark.url %>" class="form-control">
+              </div>
+              <div class="button form-group">
+                <p>
+                  Bookmark Description
+                </p>
+                <textarea id="description" name="description" class="form-control"><%= bookmark.description %></textarea>
+              </div>
+              <div>
+                <button type="submit" class="btn bg-secondary text-light button">
+                 Submit
+                </button>
+              </div>
+              
+              </div>
+          </form>    
+      </div>
+    </main>
+   <footer>
+      <%- include("../partials/footer.ejs") %>
+    </footer>  
+  </body>
+</html>

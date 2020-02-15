@@ -1,21 +1,14 @@
 /* styles */
 /* called by your view template */
 
-* {
-  padding: 0;
-  margin: 0;
+*{
+  margin:0;
+  padding:0;
 }
 
 body {
   font-family: helvetica, arial, sans-serif;
   background:#474747;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content:space-around;
-  
-  
-  
 }
 
 h1 {
@@ -31,38 +24,47 @@ h1 {
      1px 1px 0 #000;
 }
 
-.box{
-  background-color: #0040ff; 
-  width: 85px;
-  height: 85px;  
-  border-radius: 50%;
+.box{  
+  padding: 1em;  
+  border-radius: 12px;
   font-size: 2em;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content:space-around;
-  color: #fff;
-  
-  
 }
 
-.box:hover{
-  background-color: #3366ff; 
-  border: 1px solid #fff;
-  
-}
+
 
 .float{
     position: fixed;
     width: 60px;
     height: 60px;
     bottom: 40px;
-    right: 40px;
-    
+    right: 40px;    
     border-radius: 50px;
     text-align: center;
     
 }
 
+.bookmarkbox{
+  border: 1px solid #fff;
+  padding: 1em;
+  margin: 1em;
+  border-radius: 12px;
+}
 
+.bookmarkbox:hover{
+  background: #868e96;
+}
+
+.buttonBox{
+  display: flex;
+  justify-content: space-between;
+  margin: 1em;
+}
+
+.button{
+  margin: 1em;
+}
 

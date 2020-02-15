@@ -1,12 +1,14 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-//Create Schema
+//Create Schema for bookmarks
 
 
 
 const BookmarkSchema = new Schema({
-  bookmark:{ type: String},
+  url:{ type: String, required: true},
+  description: {type: String, required: true},
+  createdBy:{type: String, required: true},
   date: {type: Date},
   
   
