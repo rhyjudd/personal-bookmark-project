@@ -157,7 +157,11 @@ app.get('/logout', (req,res)=>{
 
 
 app.get('/dashboard', requireLogin,(req,res)=>{
-  
+  Bookmark.find({createdBy:req.user.userName}).then( (bookmarks)=>{ 
+    let jsonObj = bookmarks; 
+    console.log(`first breakpoint: user has loaded or re-loaded the main page`)
+    res.render('./pages/index', {bookmarks: jsonObj, expressFlash: req.flash('success'), message:req.flash('error'),loggedIn:true});
+  });
 })
 
 
