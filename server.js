@@ -155,6 +155,12 @@ app.get('/logout', (req,res)=>{
   res.redirect('/login');
 });
 
+
+app.get('/dashboard', requireLogin,(req,res)=>{
+  
+})
+
+
 //New Bookmark route
 app.get("/newbookmark",requireLogin,(req,res)=>{
   console.log(req.user.userName);
