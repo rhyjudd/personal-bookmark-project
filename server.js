@@ -14,6 +14,10 @@ const session      = require("express-session");
 const flash        = require("connect-flash");
 const sessionStore = new session.MemoryStore;
 const LocalStrategy= require("passport-local").Strategy;
+const bcrypt       = require("bcrypt");
+
+//To fix depreciation warnings
+mongoose.set('useUnifiedTopology', true);
 
 
 //Load mongoose models
@@ -36,9 +40,9 @@ passport.use(new LocalStrategy((username, password, done)=>{
           console.log('No user found');
           return done(null, false, {msg:'Incorrect username'});
         } 
-        if(user.password != password){
-          return done(null, false, {message:'Incorrect password'});
-        }
+        bcrypt.compare(password, password,(err, result)=>{
+          if(err) return done(null, false, {msg: 'Incorrect password'});
+        });
     
         return done(null,user);
   });
@@ -61,7 +65,7 @@ passport.deserializeUser(function(id, cb) {
 
 function requireLogin(req,res,next) {
 	if(!req.user) {
-    return res.render('./pages/login',{message: 'login to view content', loggedIn:false})
+    return res.render('./pages/login',{message: 'login to view or edit content', loggedIn:false})
   };
 	next();
 }
@@ -133,14 +137,12 @@ app.use(express.static("public"));
 
 // http://expressjs.com/en/starter/basic-routing.html
 //Default route
-app.get("/", requireLogin,(req, res)=>{
-  Bookmark.find({createdBy:req.user.userName}).then( (bookmarks)=>{ 
-    let jsonObj = bookmarks; 
+app.get("/",(req, res)=>{   
     console.log(`first breakpoint: user has loaded or re-loaded the main page`)
-    res.render('./pages/index', {bookmarks: jsonObj, expressFlash: req.flash('success'), message:req.flash('error'),loggedIn:true});
+    res.render('./pages/index', {loggedIn:false});
   });
   
-});
+
 
 
 //login route
@@ -155,6 +157,16 @@ app.get('/logout', (req,res)=>{
   res.redirect('/login');
 });
 
+
+app.get('/dashboard', requireLogin,(req,res)=>{
+  Bookmark.find({createdBy:req.user.userName}).then( (bookmarks)=>{ 
+    let jsonObj = bookmarks; 
+    console.log(`first breakpoint: user has loaded or re-loaded the main page`)
+    res.render('./pages/dashboard', {bookmarks: jsonObj, expressFlash: req.flash('success'), message:req.flash('error'),loggedIn:true});
+  });
+})
+
+
 //New Bookmark route
 app.get("/newbookmark",requireLogin,(req,res)=>{
   console.log(req.user.userName);
@@ -163,27 +175,32 @@ app.get("/newbookmark",requireLogin,(req,res)=>{
 
 //New User rouote
 app.get("/adduser", (req, res)=>{
-  res.render("pages/adduser");
+  res.render("pages/adduser",{loggedIn: false});
 })
 
 //Add user 
-app.post("/adduser",requireLogin,(req,res)=>{
+app.post("/adduser",(req,res)=>{
   console.log(req.body);
-  let today = new Date(); 
-  const newUser = {
+  let today = new Date();
+  
+  bcrypt.hash(req.body.password, 10, (err, hash)=>{
+    const newUser = {
     firstName   : req.body.firstName,
     lastName    : req.body.lastName,
     phoneNumber : req.body.phoneNumber,
     userName    : req.body.userName,
     emailAddress: req.body.emailAddress, 
-    password    : req.body.password,
+    password    : hash,
     date        : today,
-  }
-  
-  new User(newUser).save().then(()=>{
+    }  
+    
+    new User(newUser).save().then(()=>{
     console.log(newUser)
-  })
-  res.redirect("/",{loggedIn:true});
+    })    
+  });
+  
+  
+  res.redirect("/dashboard");
 });
 
 
@@ -216,10 +233,10 @@ app.post("/addBookmark",requireLogin, (req,res)=>{
       if(err){
         console.log(err.message);
         req.flash('failure', `${err.message}`);
-        res.redirect('/');
+        res.redirect('/dashboard');
       } else {
         req.flash('success', 'New bookmark added to the library');
-        res.redirect('/'); 
+        res.redirect('/dashboard'); 
       }
     
     });     
@@ -230,12 +247,32 @@ app.post("/addBookmark",requireLogin, (req,res)=>{
 app.get('/editBookmark/:bookmarkId',requireLogin,(req, res)=>{
   console.log(req.params);
   let id = req.params.bookmarkId;
-  console.log(`Edit bookmark breakpoint, req.params.id ${id}`);
+  console.log(`Update bookmark breakpoint, req.params.id: ${id}`);
   Bookmark.findById(id).then( (bookmark)=>{
     let jsonObj = bookmark;
     console.log(jsonObj);
     res.render('./pages/editBookmark', {bookmark: jsonObj,loggedIn:true});    
   })  
+});
+
+
+//Update bookmark
+app.post("/updateBookmark/:id", requireLogin,(req, res)=>{
+  let updateId = req.params.id;
+  let today    = new Date();
+  
+  const newBookmark = {
+      url        : req.body.url,
+      description: req.body.description,
+      createdBy  : req.user.userName,
+      date       : today,    
+    }; 
+  
+  Bookmark.findByIdAndUpdate(updateId, newBookmark).then(
+    res.redirect('/dashboard')
+  );
+  console.log(`Update route breakpoint: ${updateId}`);  
+  
 });
 
 
@@ -248,15 +285,11 @@ app.post('/deleteBookmark/:id',requireLogin,(req, res)=>{
       if(err) console.log(err);
       console.log("successul delete");
     });
-  res.redirect("/");
+  res.redirect("/dashboard");
 })
 
 
-//Update bookmark
-app.post("/updateBookmark/:id", requireLogin,(req, res)=>{
-  let updateId = req.params.id;
-  console.log(`Update route breakpoint: ${updateId}`);  
-});
+
 
 
 
@@ -264,7 +297,7 @@ app.post("/updateBookmark/:id", requireLogin,(req, res)=>{
 app.post('/login',  passport.authenticate('local', { failureRedirect: '/login', failureFlash:'Login failed'}), (req,res)=> {
     console.log("login successful")
     req.flash('success', 'You have successfully logged in');
-    res.redirect('/');
+    res.redirect('/dashboard');
   });
 
 

@@ -8,44 +8,10 @@
     <%- include("../partials/header.ejs") %>
     </header>
     <main class="container" >
-      <%- console.log(expressFlash)-%>
-      <%- console.log(message) -%>
-      
-      <% if ( expressFlash.length > 0 ) { %>
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-          <p>
-            <%= expressFlash %>
-          </p>
-          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </div>
-
-      <% } %>
-      
-       <% if ( message.length > 0 ) { %>
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-          <p>
-            <%= message %>
-          </p>
-          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </div>
-
-      <% } %>
-      
-      
-      
     <div>
-       <% bookmarks.forEach((bookmarks) => {
-      %> 
-      <a href="Bookmark/<%= bookmarks._id %>" class="bg-secondary text-light">  
-        <div class="text-light bookmarkbox ">
-          <%= bookmarks.url %>    
-        </div> 
-      </a>
-        
-        <%
-        }) %>   
+      <p class="text-light bookmarkbox ">
+        <strong>Welcome to Bookmarks!!</strong> Your own personal web-based bookmark organizer
+      </p>
     </div>
     </main>
     <footer>
