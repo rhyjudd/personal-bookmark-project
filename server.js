@@ -14,6 +14,10 @@ const session      = require("express-session");
 const flash        = require("connect-flash");
 const sessionStore = new session.MemoryStore;
 const LocalStrategy= require("passport-local").Strategy;
+const bcrypt       = require("bcrypt");
+
+//To fix depreciation warnings
+mongoose.set('useUnifiedTopology', true);
 
 
 //Load mongoose models
@@ -36,9 +40,9 @@ passport.use(new LocalStrategy((username, password, done)=>{
           console.log('No user found');
           return done(null, false, {msg:'Incorrect username'});
         } 
-        if(user.password != password){
-          return done(null, false, {message:'Incorrect password'});
-        }
+        bcrypt.compare(password, password,(err, result)=>{
+          if(err) return done(null, false, {msg: 'Incorrect password'});
+        });
     
         return done(null,user);
   });
@@ -177,20 +181,25 @@ app.get("/adduser", (req, res)=>{
 //Add user 
 app.post("/adduser",(req,res)=>{
   console.log(req.body);
-  let today = new Date(); 
-  const newUser = {
+  let today = new Date();
+  
+  bcrypt.hash(req.body.password, 10, (err, hash)=>{
+    const newUser = {
     firstName   : req.body.firstName,
     lastName    : req.body.lastName,
     phoneNumber : req.body.phoneNumber,
     userName    : req.body.userName,
     emailAddress: req.body.emailAddress, 
-    password    : req.body.password,
+    password    : hash,
     date        : today,
-  }
-  
-  new User(newUser).save().then(()=>{
+    }  
+    
+    new User(newUser).save().then(()=>{
     console.log(newUser)
-  })
+    })    
+  });
+  
+  
   res.redirect("/dashboard");
 });
 
