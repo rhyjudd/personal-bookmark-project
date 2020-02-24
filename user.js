@@ -9,7 +9,11 @@ const UsersSchema = new Schema({
   firstName:{ type: String},
   lastName: {type: String},
   phoneNumber: {type: String},
-  userName: {type: String},
+  userName: { 
+              type: String,
+              index:true,
+              unique:true
+            },
   emailAddress:{type: String},
   password: {type: String },
   date: {type: Date},
